@@ -40,13 +40,41 @@ def delete_user(user_id):
 #user1 is who the money is transferring from
 #user2 is who the money goes to
 def balance_transfer(user_id1, user_id2, amount):
-    if confirm_user(user_id1) and confirm_user(user_id2) and confirm_balance(user_id1, amount):
-        cur.execute("UPDATE Users SET balance = balance - %s WHERE user_id = %s", (amount, user_id1))
-        cur.execute("UPDATE Users SET balance = balance + %s WHERE user_id = %s", (amount, user_id2))
+    if withdrawal(user_id1, amount) and deposit(user_id2, amount):
+        cur.execute("INSERT INTO Transactions (from_user_id, to_user_id, amount) VALUES (%s, %s, %s)", (user_id1, user_id2, amount))
         conn.commit()
         return True
     return False
 
+#basic one user withdrawal
+#note, no commit
+def withdrawal(user_id, amount):
+    if confirm_user(user_id) and confirm_balance(user_id, amount):
+        cur.execute("UPDATE Users SET balance = balance - %s WHERE user_id = %s", (amount, user_id))
+        return True
+    return False
+
+#a singular withdrawal that commits
+def withdrawal_single(user_id, amount):
+    if withdrawal(user_id, amount):
+        conn.commit()
+        return True
+    return False
+
+#basic one user deposit
+#note, no commit
+def deposit(user_id, amount):
+    if confirm_user(user_id):
+        cur.execute("UPDATE Users SET balance = balance + %s WHERE user_id = %s", (amount, user_id))
+        return True
+    return False
+
+#a singular deposit that commits
+def deposit_single(user_id, amount):
+    if deposit(user_id, amount):
+        conn.commit()
+        return True
+    return False
 
 def test_cases():
     val = find_user("6")
