@@ -4,11 +4,13 @@ CREATE TABLE Users (
 	last_name TEXT,
 	street TEXT,
 	city TEXT,
-	state TEXT,
+	st TEXT,
 	zip_code TEXT,
 	balance DECIMAL(10, 2),
 	date_created DATE,
-	role VARCHAR(10) CHECK(role IN('Empl', 'User', 'Admin'))
+	role VARCHAR(10) CHECK(role IN('Empl', 'User', 'Admin')),
+	username VARCHAR(30),
+	pw VARCHAR(30)
 );
 
 CREATE TABLE Transactions (
@@ -19,4 +21,10 @@ CREATE TABLE Transactions (
 	date_sent DATE
 );
 
-
+Create Table Accounts (
+	account_id SERIAL PRIMARY KEY,
+	user_id INT references Users(user_id),
+	balance DECIMAL(10, 2),
+	date_created DATE,
+	role VARCHAR(10) CHECK(role IN ('Checkings', 'Savings'))
+)

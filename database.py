@@ -1,6 +1,6 @@
 import psycopg2
 
-conn = psycopg2.connect("dbname=postgres user=postgres password=amadeus")
+conn = psycopg2.connect("dbname=testing user=postgres password=amadeus")
 cur = conn.cursor()
 
 #to determine if the user exists or not
@@ -27,8 +27,18 @@ def make_user(user_data):
     conn.commit()
 
 #user look-up based on id
-def find_user(user_id):
-    cur.execute("SELECT * FROM Users WHERE user_id = %s;", (user_id))
+def find_user(user_name):
+    cur.execute("SELECT * FROM Users WHERE username = %s;", (user_name,))
+    return cur.fetchone()
+
+#return user_id based on un
+#note, make usernames unique
+def get_user_id(user_name):
+    cur.execute("SELECT user_id FROM Users WHERE username = %s;", (user_name,))
+    return cur.fetchone()
+
+def get_users_name(user_id):
+    cur.execute("SELECT first_name FROM Users WHERE user_id = %s;", (user_id,))
     return cur.fetchone()
 
 #deleting user based on id
@@ -82,8 +92,3 @@ def test_cases():
     delete_user("6")
     val = find_user("6")
     print(val)
-
-cur.close()
-conn.close()
-
-
