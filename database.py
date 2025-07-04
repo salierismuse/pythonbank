@@ -37,6 +37,14 @@ def get_user_id(user_name):
     cur.execute("SELECT user_id FROM Users WHERE username = %s;", (user_name,))
     return cur.fetchone()
 
+def get_check_bal(user_id):
+    cur.execute("SELECT balance FROM Accounts WHERE user_id = %s AND role = 'Checkings';", (user_id,))
+    return cur.fetchone()
+
+def get_save_bal(user_id):
+    cur.execute("SELECT balance FROM Accounts WHERE user_id = %s AND role = 'Savings';", (user_id,))
+    return cur.fetchone()
+    
 def get_users_name(user_id):
     cur.execute("SELECT first_name FROM Users WHERE user_id = %s;", (user_id,))
     return cur.fetchone()
@@ -49,6 +57,7 @@ def delete_user(user_id):
 
 #user1 is who the money is transferring from
 #user2 is who the money goes to
+# needs to be rewritten to deal with accounts now.
 def balance_transfer(user_id1, user_id2, amount):
     if withdrawal(user_id1, amount) and deposit(user_id2, amount):
         cur.execute("INSERT INTO Transactions (from_user_id, to_user_id, amount) VALUES (%s, %s, %s)", (user_id1, user_id2, amount))

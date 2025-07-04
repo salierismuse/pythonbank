@@ -15,8 +15,8 @@ CREATE TABLE Users (
 
 CREATE TABLE Transactions (
 	transaction_id SERIAL PRIMARY KEY,
-	from_user_id int REFERENCES users(user_id),
-	to_user_id INT REFERENCES users(user_id),
+	from_account_id int REFERENCES Accounts(account_id),
+	to_account_id INT REFERENCES Accounts(account_id),
 	amount DECIMAL(10, 2),
 	date_sent DATE
 );

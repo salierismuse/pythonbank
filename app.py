@@ -12,7 +12,9 @@ def home():
         if database.find_user(un):
            user_id = database.get_user_id(un)
            first_name = database.get_users_name(user_id) 
-           return render_template("user_bank.html", name=first_name)
+           checking_bal = database.get_check_bal(user_id)
+           saving_bal = database.get_save_bal(user_id)
+           return render_template("user_bank.html", name=first_name, check_bal=checking_bal[0], save_bal=saving_bal[0])
         return render_template("home.html")
     return render_template("home.html")
 
