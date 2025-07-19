@@ -9,6 +9,12 @@ def confirm_user(user_id):
     if (cur.fetchone() == None):
         return False
     return True
+
+def confirm_account(account_id):
+    cur.execute("SELECT * FROM Accounts WHERE account_id = %s;", (account_id,))
+    if (cur.fetchone() == None):
+        return False
+    return True
     
 #fetching transaction chain
 def get_transaction_chain(account_id):
@@ -28,21 +34,23 @@ def get_checking(user_id):
     return acc
 
 def get_saving(user_id):
-    cur.execute("SELECT * FROM Transactions WHERE user_id = %s AND role = 'Savings'", (user_id,))
+    cur.execute("SELECT account_id FROM Accounts WHERE user_id = %s AND role = 'Savings'", (user_id,))
     acc = cur.fetchone()
     return acc
         
 
 #confirming if an amount can be subtracted
 #possibly add way for overdrafts later
-def confirm_balance(user_id, amount):
-    if not confirm_user(user_id):
+def confirm_balance(account_id, amount):
+    if not confirm_account(account_id):
         return False
-    cur.execute("SELECT Balance FROM Users WHERE user_id = %s;", (user_id))
+    cur.execute("SELECT Balance FROM Account WHERE account_id = %s;", (account_id))
     val = cur.fetchone()
     if (val[0] - amount) >= 0:
         return True
     return False
+
+
 
 # create user!
 def make_user(user_data):
@@ -60,12 +68,8 @@ def get_user_id(user_name):
     cur.execute("SELECT user_id FROM Users WHERE username = %s;", (user_name,))
     return cur.fetchone()
 
-def get_check_bal(user_id):
-    cur.execute("SELECT balance FROM Accounts WHERE user_id = %s AND role = 'Checkings';", (user_id,))
-    return cur.fetchone()
-
-def get_save_bal(user_id):
-    cur.execute("SELECT balance FROM Accounts WHERE user_id = %s AND role = 'Savings';", (user_id,))
+def get_bal(account_id):
+    cur.execute("SELECT balance FROM Accounts WHERE account_id = %s", (account_id,))
     return cur.fetchone()
     
 def get_users_name(user_id):
@@ -81,39 +85,39 @@ def delete_user(user_id):
 #user1 is who the money is transferring from
 #user2 is who the money goes to
 # needs to be rewritten to deal with accounts now.
-def balance_transfer(user_id1, user_id2, amount):
-    if withdrawal(user_id1, amount) and deposit(user_id2, amount):
-        cur.execute("INSERT INTO Transactions (from_user_id, to_user_id, amount) VALUES (%s, %s, %s)", (user_id1, user_id2, amount))
+def balance_transfer(account_id1, account_id2, amount):
+    if withdrawal(account_id1, amount) and deposit(account_id2, amount):
+        cur.execute("INSERT INTO Transactions (from_account_id, to_account_id, amount) VALUES (%s, %s, %s)", (account_id1, account_id2, amount))
         conn.commit()
         return True
     return False
 
 #basic one user withdrawal
 #note, no commit
-def withdrawal(user_id, amount):
-    if confirm_user(user_id) and confirm_balance(user_id, amount):
-        cur.execute("UPDATE Users SET balance = balance - %s WHERE user_id = %s", (amount, user_id))
+def withdrawal(account_id, amount):
+    if confirm_account(account_id) and confirm_balance(account_id, amount):
+        cur.execute("UPDATE Users SET balance = balance - %s WHERE user_id = %s", (amount, account_id))
         return True
     return False
 
 #a singular withdrawal that commits
-def withdrawal_single(user_id, amount):
-    if withdrawal(user_id, amount):
+def withdrawal_single(account_id, amount):
+    if withdrawal(account_id, amount):
         conn.commit()
         return True
     return False
 
 #basic one user deposit
 #note, no commit
-def deposit(user_id, amount):
-    if confirm_user(user_id):
-        cur.execute("UPDATE Users SET balance = balance + %s WHERE user_id = %s", (amount, user_id))
+def deposit(account_id, amount):
+    if confirm_account(account_id):
+        cur.execute("UPDATE Accounts SET balance = balance + %s WHERE account_id = %s", (amount, account_id))
         return True
     return False
 
 #a singular deposit that commits
-def deposit_single(user_id, amount):
-    if deposit(user_id, amount):
+def deposit_single(account_id, amount):
+    if deposit(account_id, amount):
         conn.commit()
         return True
     return False

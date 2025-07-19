@@ -30,6 +30,9 @@ def users():
         if type == "checkings":
             chain = database.get_transaction_chain(database.get_checking(user_id))
             return render_template("user_account.html", transactions=chain)
+        elif type == "savings":
+            chain = database.get_transaction_chain(database.get_saving(user_id))
+            return render_template("user_account.html", transactions=chain)
     return render_template("user_bank.html")
 
 @app.route("/user_account")

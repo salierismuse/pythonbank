@@ -14,6 +14,10 @@
     </form>
     <p> {{check_bal}} </p>
     <h2>Savings</h2>
+    <form method="post" action="/user_bank">
+        <input type="hidden" name="type" value="savings">
+        <button type="submit">transactions</button>
+    </form>
     <p> {{save_bal}} </p>
 </body>
 </html>
