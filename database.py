@@ -10,6 +10,29 @@ def confirm_user(user_id):
         return False
     return True
     
+#fetching transaction chain
+def get_transaction_chain(account_id):
+    cur.execute("SELECT amount, from_account_id, to_account_id FROM Transactions WHERE from_account_id = %s OR to_account_id = %s;", (account_id, account_id,))
+    vals = cur.fetchall()
+    return vals
+
+def find_account(account_id):
+    cur.execute("SELECT * FROM Transactions WHERE account_id = %s;", (account_id,))
+    if (cur.fetchone() == None):
+        return False
+    return True
+
+def get_checking(user_id):
+    cur.execute("SELECT account_id FROM Accounts WHERE user_id = %s AND role = 'Checkings'", (user_id,))
+    acc = cur.fetchone()
+    return acc
+
+def get_saving(user_id):
+    cur.execute("SELECT * FROM Transactions WHERE user_id = %s AND role = 'Savings'", (user_id,))
+    acc = cur.fetchone()
+    return acc
+        
+
 #confirming if an amount can be subtracted
 #possibly add way for overdrafts later
 def confirm_balance(user_id, amount):
