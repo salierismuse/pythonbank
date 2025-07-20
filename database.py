@@ -38,7 +38,14 @@ def get_saving(user_id):
     cur.execute("SELECT account_id FROM Accounts WHERE user_id = %s AND role = 'Savings'", (user_id,))
     acc = cur.fetchone()
     return acc[0]
-        
+
+def get_role(user_id):
+    if confirm_user(user_id):
+        cur.execute("SELECT role FROM Users WHERE user_id = %s", (user_id,))
+        role = cur.fetchone()
+        return role[0]
+    else:
+        return None        
 
 #confirming if an amount can be subtracted
 #possibly add way for overdrafts later

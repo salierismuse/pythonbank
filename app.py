@@ -13,6 +13,8 @@ def home():
         pw = request.form["pw"]
         if database.find_user(un):
            user_id = database.get_user_id(un)
+           user_role = database.get_role(user_id)
+           print(user_role)
            first_name = database.get_users_name(user_id) 
            checking_bal = database.get_bal(database.get_checking(user_id))
            saving_bal = database.get_bal(database.get_saving(user_id))
