@@ -2,6 +2,14 @@
 <p>hello!</p>
 
 <body>
+    <p>TRANSFER: </p>
+    <form method="post">
+        <label for="to_id">To</label>
+        <input type="text" name="to_id">
+        <label for="amount">amount</label>
+        <input type="text" name="amount">
+        <button type="submit">send</button>
+    </form>
     <ul>
         {% for x in transactions %}
             <p>{{x[0]}} {{x[1]}} {{x[2]}}</p>

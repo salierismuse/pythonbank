@@ -24,6 +24,7 @@ def get_transaction_chain(account_id):
 
 def find_account(account_id):
     cur.execute("SELECT * FROM Transactions WHERE account_id = %s;", (account_id,))
+    
     if (cur.fetchone() == None):
         return False
     return True
@@ -31,12 +32,12 @@ def find_account(account_id):
 def get_checking(user_id):
     cur.execute("SELECT account_id FROM Accounts WHERE user_id = %s AND role = 'Checkings'", (user_id,))
     acc = cur.fetchone()
-    return acc
+    return acc[0]
 
 def get_saving(user_id):
     cur.execute("SELECT account_id FROM Accounts WHERE user_id = %s AND role = 'Savings'", (user_id,))
     acc = cur.fetchone()
-    return acc
+    return acc[0]
         
 
 #confirming if an amount can be subtracted
@@ -44,7 +45,7 @@ def get_saving(user_id):
 def confirm_balance(account_id, amount):
     if not confirm_account(account_id):
         return False
-    cur.execute("SELECT Balance FROM Account WHERE account_id = %s;", (account_id))
+    cur.execute("SELECT Balance FROM Accounts WHERE account_id = %s;", (account_id,))
     val = cur.fetchone()
     if (val[0] - amount) >= 0:
         return True
@@ -96,7 +97,7 @@ def balance_transfer(account_id1, account_id2, amount):
 #note, no commit
 def withdrawal(account_id, amount):
     if confirm_account(account_id) and confirm_balance(account_id, amount):
-        cur.execute("UPDATE Users SET balance = balance - %s WHERE user_id = %s", (amount, account_id))
+        cur.execute("UPDATE Accounts SET balance = balance - %s WHERE account_id = %s", (amount, account_id))
         return True
     return False
 
