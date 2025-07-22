@@ -1,16 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Flask Bank</title>
+    <title>Python Bank</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <h1>Python Bank!</h1>
+<body class="bg-light d-flex justify-content-center align-items-center vh-100">
+
+<div class="card p-4 shadow" style="width: 350px;">
+    <h3 class="text-center mb-3">Python Bank</h3>
     <form method="post">
-        <label for="un">user</label>
-        <input type="text" name="un">
-        <label for="password">password</label>
-        <input type="text" name="pw">
-        <button type="submit">login</button>
+        <div class="mb-3">
+            <label for="un" class="form-label">Username</label>
+            <input name="un" id="un" type="text" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="pw" class="form-label">Password</label>
+            <input name="pw" id="pw" type="password" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
     </form>
+</div>
+
 </body>
 </html>
