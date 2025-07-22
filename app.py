@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, session 
 import database
 import decimal
+import bcrypt
 
 app = Flask(__name__)
 
@@ -11,8 +12,9 @@ def home():
     if request.method == "POST":
         un = request.form["un"]
         pw = request.form["pw"]
-        if database.find_user(un):
-           user_id = database.get_user_id(un)
+        user_id = database.get_user_id(un)
+        hashed_pw = database.get_password(user_id)
+        if bcrypt.checkpw(pw.encode("utf-8"), hashed_pw.encode("utf-8")):              #check if password matches
            user_role = database.get_role(user_id)
            print(user_role)
            first_name = database.get_users_name(user_id) 
@@ -21,7 +23,9 @@ def home():
            session["user_id"] = user_id 
 
            return render_template("user_bank.html", name=first_name, check_bal=checking_bal[0], save_bal=saving_bal[0])
-        return render_template("home.html")
+        else:
+            return render_template("home.html", error="Invalid username or password")
+        
     return render_template("home.html")
 
 @app.route("/user_bank", methods=["GET", "POST"])
