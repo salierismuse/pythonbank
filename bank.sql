@@ -31,9 +31,3 @@ CREATE TABLE Transactions (
 	date_sent TIMESTAMP 
 );
 
-Create Table Loans ( 
-	loan_id SERIAL PRIMARY KEY,
-	amount DECIMAL(10, 2),
-	interest_rate DECIMAL(3, 2),
-	loanee INT references Users(user_id)
-)

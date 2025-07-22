@@ -41,16 +41,6 @@
             <tbody>
                 {% for t in transactions %}
                 <tr>
-                    <td>{{ loop.index }}</td>
-                    <td>
-                        {% if "Deposit" in t[0] %}
-                            <span class="text-success">{{ t[0] }}</span>
-                        {% elif "Withdrawal" in t[0] %}
-                            <span class="text-danger">{{ t[0] }}</span>
-                        {% else %}
-                            {{ t[0] }}
-                        {% endif %}
-                    </td>
                     <td>${{ t[1] }}</td>
                     <td>{{ t[2] }}</td>
                 </tr>
