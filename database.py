@@ -7,8 +7,9 @@ cur = conn.cursor()
 def get_password(user_id):
     if confirm_user(user_id):
         cur.execute("SELECT pw FROM Users WHERE user_id = %s;", (user_id,))
-    val = cur.fetchone()
-    return val
+        val = cur.fetchone()
+        return val
+    return None
 
 #to determine if the user exists or not
 def confirm_user(user_id):
