@@ -30,3 +30,14 @@ CREATE TABLE Transactions (
 	date_sent TIMESTAMP 
 );
 
+CREATE TABLE PendingTransactions (
+    id SERIAL PRIMARY KEY,
+    from_account_id INT,
+    to_account_id INT,
+    amount NUMERIC,
+    date_sent TIMESTAMP,
+    -- Add any extra columns as needed
+    status TEXT DEFAULT 'pending'
+);
+
+
