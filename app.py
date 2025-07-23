@@ -99,3 +99,7 @@ def create_account():
         return render_template("create_account.html")
     else:
         return render_template("create_account.html")
+
+
+if __name__ == "__main__":
+        app.run(debug=True)
