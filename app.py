@@ -132,3 +132,7 @@ def process_pending():
     from database import process_all_pending
     result = process_all_pending()
     return result
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
