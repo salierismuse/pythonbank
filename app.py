@@ -24,7 +24,7 @@ def home():
         un = request.form["un"]
         pw = request.form["pw"]
         user_id = database.get_user_id(un)
-        user_id = user_id[0]
+        user_id = user_id
         if not user_id:
             return render_template("home.html", error="Invalid username or password")
         hashed_pw = database.get_password(user_id)
