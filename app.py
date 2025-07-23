@@ -120,3 +120,12 @@ def create_account():
 def make_session_permanent():
     session.permanent = True
     app.permanent_session_lifetime = timedelta(minutes=15)
+
+@app.route("/process_pending", methods=["POST"])
+def process_pending():
+    # SECURITY: Restrict this route to admin users only!
+    # Example: if session.get("user_id") != <admin_id>: return "Access denied", 403
+
+    from database import process_all_pending
+    result = process_all_pending()
+    return result
