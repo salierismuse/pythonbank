@@ -6,7 +6,6 @@ CREATE TABLE Users (
 	city TEXT,
 	st TEXT,
 	zip_code TEXT,
-	balance DECIMAL(10, 2),
 	date_created DATE DEFAULT CURRENT_DATE,
 	role VARCHAR(10) CHECK(role IN('Empl', 'User', 'Admin')),
 	username VARCHAR(30),
@@ -18,8 +17,8 @@ Create Table Accounts (
 	account_id SERIAL PRIMARY KEY,
 	user_id INT references Users(user_id),
 	balance DECIMAL(10, 2),
-	date_created DATE,
-	interest DEC(2,2),
+	date_created DATE DEFAULT CURRENT_DATE,
+	interest DEC(2,2) DEFAULT 0.04,
 	role VARCHAR(10) CHECK(role IN ('Checkings', 'Savings'))
 );
 
