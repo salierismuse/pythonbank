@@ -116,6 +116,9 @@ def create_account():
     else:
         return render_template("create_account.html")
     
+    if __name__ == "__main__":
+        app.run(debug=True)
+
 @app.before_request
 def make_session_permanent():
     session.permanent = True
