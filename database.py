@@ -1,6 +1,7 @@
 import psycopg2
 import datetime
-import bcrypt
+import bcrypt 
+from multiprocessing import Pool
 
 conn = psycopg2.connect("dbname=testing user=postgres password=amadeus")
 cur = conn.cursor()
@@ -155,4 +156,28 @@ def test_cases():
     delete_user("6")
     val = find_user("6")
     print(val)
+
+#This is to help with Parallization 
+def process_transaction(pending_txn):
+    account_id1, account_id2, amount, date_sent, txn_id = pending_txn
+    # Try to perform withdrawal/deposit
+    if withdrawal(account_id1, amount) and deposit(account_id2, amount):
+        cur.execute(
+            "INSERT INTO Transactions (from_account_id, to_account_id, amount, date_sent) VALUES (%s, %s, %s, %s)",
+            (account_id1, account_id2, amount, date_sent)
+        )
+        cur.execute("DELETE FROM PendingTransactions WHERE id = %s", (txn_id,))
+        conn.commit()
+        return True
+    return False
+
+def process_all_pending():
+    cur.execute("SELECT from_account_id, to_account_id, amount, date_sent, id FROM PendingTransactions")
+    pending_txns = cur.fetchall()
+    if not pending_txns:
+        return "No pending transactions to process."
+    with Pool() as pool:
+        results = [pool.apply_async(process_transaction, (txn,)) for txn in pending_txns]
+        [r.get() for r in results]  # Wait for all to finish
+    return f"Processed {len(pending_txns)} transactions."
 
