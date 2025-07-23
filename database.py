@@ -73,7 +73,8 @@ def confirm_balance(account_id, amount):
 
 # create user!
 def make_user(user_data, checking_data, saving_data):
-    cur.execute("INSERT INTO Users (first_name, last_name, street, city, st, zip_code, role, username, pw) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)", (user_data[0], user_data[1], user_data[2], user_data[3], user_data[4], user_data[5], user_data[6], user_data[7], user_data[8]))
+    cur.execute("INSERT INTO Users (first_name, last_name, street, city, st, zip_code, role, username, pw) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)", 
+                (user_data[0], user_data[1], user_data[2], user_data[3], user_data[4], user_data[5], user_data[6], user_data[7], user_data[8]))
     cur.execute("SELECT user_id FROM Users WHERE username = %s", (user_data[7],))
     id = cur.fetchone()[0]
     Checkings = (id, checking_data, "Checkings")
