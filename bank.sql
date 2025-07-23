@@ -7,10 +7,10 @@ CREATE TABLE Users (
 	st TEXT,
 	zip_code TEXT,
 	balance DECIMAL(10, 2),
-	date_created DATE,
+	date_created DATE DEFAULT CURRENT_DATE,
 	role VARCHAR(10) CHECK(role IN('Empl', 'User', 'Admin')),
 	username VARCHAR(30),
-	pw VARCHAR(30)
+	pw VARCHAR(72)
 );
 
 

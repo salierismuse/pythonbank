@@ -8,13 +8,13 @@
     <h1>Python Bank!</h1>
     <p> Hello {{name}} </p>
     <h2>Checkings</h2>
-    <form method="post" action="/user_bank">
+    <form method="post">
         <input type="hidden" name="type" value="checkings">
         <button type="submit">transactions</button>
     </form>
     <p> {{check_bal}} </p>
     <h2>Savings</h2>
-    <form method="post" action="/user_bank">
+    <form method="post">
         <input type="hidden" name="type" value="savings">
         <button type="submit">transactions</button>
     </form>
