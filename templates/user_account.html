@@ -21,7 +21,7 @@
                 <label for="amount" class="form-label">Amount</label>
                 <input type="text" name="amount" id="amount" class="form-control" required>
             </div>
-            <button type="submit" class="btn btn-primary">Send</button>
+            <button type="submit">Send</button>
         </form>
     </div>
 
@@ -41,8 +41,10 @@
             <tbody>
                 {% for t in transactions %}
                 <tr>
-                    <td>${{ t[1] }}</td>
-                    <td>{{ t[2] }}</td>
+                    <td>${{ t[0] }}</td>
+                    <td>{{ t[1] }}</td>
+                    <td>{{ t[2] }} </td>
+                    <td>{{ t[3] }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

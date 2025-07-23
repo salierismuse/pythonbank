@@ -1,14 +1,18 @@
 import psycopg2
+import datetime
+import bcrypt
 
 conn = psycopg2.connect("dbname=testing user=postgres password=amadeus")
 cur = conn.cursor()
+
+
 
 #get pw
 def get_password(user_id):
     if confirm_user(user_id):
         cur.execute("SELECT pw FROM Users WHERE user_id = %s;", (user_id,))
         val = cur.fetchone()
-        return val
+        return val[0]
     return None
 
 #to determine if the user exists or not
@@ -26,7 +30,7 @@ def confirm_account(account_id):
     
 #fetching transaction chain
 def get_transaction_chain(account_id):
-    cur.execute("SELECT amount, from_account_id, to_account_id FROM Transactions WHERE from_account_id = %s OR to_account_id = %s;", (account_id, account_id,))
+    cur.execute("SELECT amount, from_account_id, to_account_id, date_sent FROM Transactions WHERE from_account_id = %s OR to_account_id = %s;", (account_id, account_id,))
     vals = cur.fetchall()
     return vals
 
@@ -70,7 +74,7 @@ def confirm_balance(account_id, amount):
 
 # create user!
 def make_user(user_data):
-    cur.execute("INSERT INTO Users (first_name, last_name, balance, role) VALUES (%s, %s, %s, %s)", (user_data[0], user_data[1], user_data[2], user_data[3]))
+    cur.execute("INSERT INTO Users (first_name, last_name, street, city, st, zip_code, balance, role, username, pw) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (user_data[0], user_data[1], user_data[2], user_data[3], user_data[4], user_data[5], user_data[6], user_data[7], user_data[8], user_data[9]))
     conn.commit()
 
 #user look-up based on id
@@ -103,7 +107,7 @@ def delete_user(user_id):
 # needs to be rewritten to deal with accounts now.
 def balance_transfer(account_id1, account_id2, amount):
     if withdrawal(account_id1, amount) and deposit(account_id2, amount):
-        cur.execute("INSERT INTO Transactions (from_account_id, to_account_id, amount) VALUES (%s, %s, %s)", (account_id1, account_id2, amount))
+        cur.execute("INSERT INTO Transactions (from_account_id, to_account_id, amount, date_sent) VALUES (%s, %s, %s, %s)", (account_id1, account_id2, amount, datetime.datetime.now()))
         conn.commit()
         return True
     return False
@@ -144,3 +148,4 @@ def test_cases():
     delete_user("6")
     val = find_user("6")
     print(val)
+
