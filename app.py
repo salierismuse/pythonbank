@@ -66,6 +66,10 @@ def user_account():
         print(amount)
         if database.balance_transfer(account_id, account_to, amount):
             chain = database.get_transaction_chain(account_id)
+            checking_bal = database.get_bal(database.get_checking(session.get("user_id")))
+            saving_bal = database.get_bal(database.get_saving(session.get("user_id")))
+            session["check_bal"] = checking_bal[0]
+            session["saving_bal"] = saving_bal[0]
             return render_template("user_account.html", transactions=chain)
         else:
             chain = database.get_transaction_chain(account_id)
@@ -74,5 +78,24 @@ def user_account():
     return render_template("user_account.html", transactions=chain)
 
 
-
-    
+@app.route("/create_account", methods=["GET", "POST"])
+def create_account():
+    user_id = session.get("user_id")
+    if request.method == "POST":
+        first = request.form["first name"]
+        last = request.form["last name"]
+        street = request.form["street"]
+        city = request.form["city"]
+        state = request.form["state"]
+        zip = request.form["zip"]
+        username = request.form["username"]
+        password = request.form["password"]
+        checkings = request.form["checking"]
+        saving = request.form["saving"]
+        account_info = (first, last, street, city, state, zip, 0, "User", username, password)
+        if database.make_user(account_info, checkings, saving):
+            return redirect("/")
+    if database.get_role(user_id) == "Empl":
+        return render_template("create_account.html")
+    else:
+        return render_template("create_account.html")
