@@ -15,9 +15,8 @@ def home():
         pw = request.form["pw"]
         user_id = database.get_user_id(un)
         user_id = user_id[0]
-        print(user_id)
         hashed_pw = database.get_password(user_id)
-        print(hashed_pw)
+
         if bcrypt.checkpw(pw.encode("utf-8"), hashed_pw.encode("utf-8")):              #check if password matches
            user_role = database.get_role(user_id)
            print(user_role)
@@ -29,9 +28,11 @@ def home():
            session["check_bal"] = checking_bal[0]
            session["saving_bal"] = saving_bal[0]
 
+
            return redirect("/user_bank")
         else:
             return render_template("home.html", error="Invalid username or password")
+
     return render_template("home.html")
 
 @app.route("/user_bank", methods=["GET", "POST"])
