@@ -1,4 +1,7 @@
 from flask import Flask, request, render_template, session, redirect 
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from datetime import timedelta
 import database
 import decimal
 import bcrypt
@@ -6,20 +9,28 @@ import bcrypt
 app = Flask(__name__)
 
 app.secret_key = "TESTING"
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=15)
 
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"]
+)
 
 @app.route("/", methods=["GET", "POST"])
+@limiter.limit("10 per minute")
 def home():
     if request.method == "POST":
         un = request.form["un"]
         pw = request.form["pw"]
         user_id = database.get_user_id(un)
         user_id = user_id[0]
+        if not user_id:
+            return render_template("home.html", error="Invalid username or password")
         hashed_pw = database.get_password(user_id)
 
         if bcrypt.checkpw(pw.encode("utf-8"), hashed_pw.encode("utf-8")):              #check if password matches
            user_role = database.get_role(user_id)
-           print(user_role)
            first_name = database.get_users_name(user_id) 
            checking_bal = database.get_bal(database.get_checking(user_id))
            saving_bal = database.get_bal(database.get_saving(user_id))
@@ -38,6 +49,8 @@ def home():
 @app.route("/user_bank", methods=["GET", "POST"])
 def users():
     user_id = session.get("user_id")
+    if not user_id:
+        return render_template("home.html", error="Log in to view account details")
     name = session.get("name")
     check_bal = session.get("check_bal")
     saving_bal = session.get("saving_bal")
@@ -57,9 +70,12 @@ def users():
     return render_template("user_bank.html", user_id=user_id, name=name, check_bal=check_bal, saving_bal=saving_bal)
 
 @app.route("/user_account", methods=["GET", "POST"])
+@limiter.limit("5 per minute")
 def user_account():
     account_id = session.get("account_id")
     chain = session["transactions"]
+    if not account_id:
+        return render_template("home.html", error="Log in to view account details")
     if request.method == "POST":
         amount = decimal.Decimal((request.form["amount"]))
         account_to = request.form["to_id"]
@@ -99,3 +115,8 @@ def create_account():
         return render_template("create_account.html")
     else:
         return render_template("create_account.html")
+    
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
+    app.permanent_session_lifetime = timedelta(minutes=15)
