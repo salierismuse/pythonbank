@@ -92,7 +92,7 @@ def create_account():
         password = request.form["password"]
         checkings = request.form["checking"]
         saving = request.form["saving"]
-        account_info = (first, last, street, city, state, zip, 0, "User", username, password)
+        account_info = (first, last, street, city, state, zip, "User", username, password)
         if database.make_user(account_info, checkings, saving):
             return redirect("/")
     if database.get_role(user_id) == "Empl":
