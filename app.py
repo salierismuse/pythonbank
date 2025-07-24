@@ -37,7 +37,7 @@ def required_role(*roles):
     return decorator
 
 @app.route("/", methods=["GET", "POST"])
-@limiter.limit("10 per minute")
+@limiter.limit("20 per minute")
 def home():
     if request.method == "POST":
         un = request.form["un"]
@@ -96,7 +96,7 @@ def users():
     return render_template("user_bank.html", user_id=user_id, name=name, check_bal=check_bal, saving_bal=saving_bal)
 
 @app.route("/user_account", methods=["GET", "POST"])
-@limiter.limit("5 per minute")
+@limiter.limit("30 per minute")
 @required_login
 def user_account():
     account_id = session.get("account_id")
@@ -144,8 +144,9 @@ def create_account():
         return render_template("create_account.html")
     else:
         return render_template("create_account.html")
-    
 @app.route("/employee_home", methods=["GET", "POST"])
+@required_login
+@required_role('Empl')
 def employee_home():
     user_id = session.get("user_id")
     if not user_id:
