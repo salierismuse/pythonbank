@@ -37,7 +37,7 @@ def required_role(*roles):
     return decorator
 
 @app.route("/", methods=["GET", "POST"])
-@limiter.limit("10 per minute")
+@limiter.limit("20 per minute")
 def home():
     if request.method == "POST":
         un = request.form["un"]
@@ -47,9 +47,7 @@ def home():
             return render_template("home.html", error="Invalid username or password")
         user_id = user_id_check[0]
         hashed_pw = database.get_password(user_id)
-        print(hashed_pw)
-        if bcrypt.checkpw(pw.encode("utf-8"), hashed_pw.encode("utf-8")):              #check if password matches
-           print("h")
+        if bcrypt.checkpw(pw.encode("utf-8"), hashed_pw):              #check if password matches
            user_role = database.get_role(user_id)
            first_name = database.get_users_name(user_id) 
            checking_bal = database.get_bal(database.get_checking(user_id))
@@ -98,7 +96,7 @@ def users():
     return render_template("user_bank.html", user_id=user_id, name=name, check_bal=check_bal, saving_bal=saving_bal)
 
 @app.route("/user_account", methods=["GET", "POST"])
-@limiter.limit("5 per minute")
+@limiter.limit("30 per minute")
 @required_login
 def user_account():
     account_id = session.get("account_id")
@@ -115,12 +113,12 @@ def user_account():
             saving_bal = database.get_bal(database.get_saving(session.get("user_id")))
             session["check_bal"] = checking_bal[0]
             session["saving_bal"] = saving_bal[0]
-            return render_template("user_account.html", transactions=chain)
+            return render_template("user_account.html", transactions=chain, account_id = account_id)
         else:
             chain = database.get_transaction_chain(account_id)
-            return render_template("user_account.html", transactions=chain)
+            return render_template("user_account.html", transactions=chain, account_id = account_id)
     chain = session.get("transactions")
-    return render_template("user_account.html", transactions=chain)
+    return render_template("user_account.html", transactions=chain, account_id = account_id)
 
 
 @app.route("/create_account", methods=["GET", "POST"])
@@ -137,15 +135,17 @@ def create_account():
         zip = request.form["zip"]
         username = request.form["username"]
         password = request.form["password"]
+        hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
         checkings = request.form["checking"]
         saving = request.form["saving"]
-        account_info = (first, last, street, city, state, zip, "User", username, password)
+        account_info = (first, last, street, city, state, zip, "User", username, hashed_password)
         if database.make_user(account_info, checkings, saving):
             return redirect("/")
     if database.get_role(user_id) == "Empl":
         return render_template("create_account.html")
     else:
         return render_template("create_account.html")
+
 
 
 @app.route("/employee_home", methods=["GET", "POST"])
@@ -160,6 +160,14 @@ def employee_home():
         session.clear()
         return redirect("/")
     users = database.get_all_users_and_accounts() 
+        return render_template("home.html", error="Access denied.")
+    users = database.get_all_users_and_accounts()
+    if request.method == "POST":
+        button = request.form["1"]
+        if button != None:
+            database.delete_user(database.get_user_id(button))
+            users = database.get_all_users_and_accounts()
+            return render_template("employee_home.html", users=users)
     return render_template("employee_home.html", users=users)
 
 @app.before_request

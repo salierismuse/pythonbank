@@ -16,7 +16,7 @@ CREATE TABLE Users (
 
 Create Table Accounts (
 	account_id SERIAL PRIMARY KEY,
-	user_id INT REFERENCES Users(user_id) ON DELETE CASCADE,
+	user_id INT references Users(user_id) ON DELETE SET NULL,
 	balance DECIMAL(10, 2) DEFAULT 0.00,
 	interest DECIMAL(4, 2) DEFAULT 0.04,
 	role VARCHAR(10) CHECK(role IN ('Checkings', 'Savings'))
