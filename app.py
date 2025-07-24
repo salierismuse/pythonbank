@@ -148,7 +148,7 @@ def create_account():
         return render_template("create_account.html")
 
 
-@app.route("/employee_home")
+@app.route("/employee_home", methods=["GET", "POST"])
 @required_login
 @required_role('Empl', 'Admin')
 def employee_home():
@@ -178,7 +178,7 @@ def process_pending():
     result = process_all_pending()
     return result
 
-@app.route("/admin_home")
+@app.route("/admin_home", methods=["GET", "POST"])
 @required_login
 @required_role('Admin')
 def admin_home():
