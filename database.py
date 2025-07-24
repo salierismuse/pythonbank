@@ -187,11 +187,22 @@ def process_all_pending():
 
 def get_all_users_and_accounts():
     cur.execute("""
-        SELECT u.user_id, u.first_name, u.last_name, u.username, u.role,
+        SELECT DISTINCT u.user_id, u.first_name, u.last_name, u.username, u.role,
                a.account_id, a.balance, a.role as account_type, a.interest
         FROM Users u
         JOIN Accounts a ON u.user_id = a.user_id
+        WHERE u.role = 'User'
         ORDER BY u.user_id, a.account_id
+    """)
+    return cur.fetchall()
+
+
+def get_all_employees():
+    cur.execute("""
+        SELECT user_id, first_name, last_name, username, role
+        FROM Users
+        WHERE role = 'Empl'
+        ORDER BY user_id
     """)
     return cur.fetchall()
 
