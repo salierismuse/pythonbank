@@ -2,9 +2,11 @@ from flask import Flask, request, render_template, session, redirect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from datetime import timedelta
+from functools import wraps
 import database
 import decimal
 import bcrypt
+
 
 app = Flask(__name__)
 
@@ -16,6 +18,23 @@ limiter = Limiter(
     app=app,
     default_limits=["200 per day", "50 per hour"]
 )
+def required_login(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect('/')
+        return f(*args, **kwargs)
+    return decorated_function
+
+def required_role(*roles):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if 'user_role' not in session or session['user_role'] not in roles:
+                return redirect('/')
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
 
 @app.route("/", methods=["GET", "POST"])
 @limiter.limit("10 per minute")
@@ -23,10 +42,10 @@ def home():
     if request.method == "POST":
         un = request.form["un"]
         pw = request.form["pw"]
-        user_id = database.get_user_id(un)
-        user_id = user_id
-        if not user_id:
+        user_id_check = database.get_user_id(un)
+        if not user_id_check:
             return render_template("home.html", error="Invalid username or password")
+        user_id = user_id_check[0]
         hashed_pw = database.get_password(user_id)
 
         if bcrypt.checkpw(pw.encode("utf-8"), hashed_pw.encode("utf-8")):              #check if password matches
@@ -47,6 +66,7 @@ def home():
     return render_template("home.html")
 
 @app.route("/user_bank", methods=["GET", "POST"])
+@required_login
 def users():
     user_id = session.get("user_id")
     if not user_id:
@@ -71,6 +91,7 @@ def users():
 
 @app.route("/user_account", methods=["GET", "POST"])
 @limiter.limit("5 per minute")
+@required_login
 def user_account():
     account_id = session.get("account_id")
     chain = session["transactions"]
@@ -95,6 +116,8 @@ def user_account():
 
 
 @app.route("/create_account", methods=["GET", "POST"])
+@required_login
+@required_role('Empl', 'Admin')
 def create_account():
     user_id = session.get("user_id")
     if request.method == "POST":
@@ -116,8 +139,6 @@ def create_account():
     else:
         return render_template("create_account.html")
     
-    if __name__ == "__main__":
-        app.run(debug=True)
 
 @app.before_request
 def make_session_permanent():
@@ -125,6 +146,8 @@ def make_session_permanent():
     app.permanent_session_lifetime = timedelta(minutes=15)
 
 @app.route("/process_pending", methods=["POST"])
+@required_login
+@required_role('Admin')
 def process_pending():
     # SECURITY: Restrict this route to admin users only!
     # Example: if session.get("user_id") != <admin_id>: return "Access denied", 403
