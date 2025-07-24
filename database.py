@@ -110,7 +110,7 @@ def get_users_name(user_id):
 
 #deleting user based on id
 def delete_user(user_id):
-    if (find_user(user_id)):
+    if (find_user(get_users_name(user_id))):
         cur.execute("DELETE FROM Users WHERE user_id = %s", (user_id))
         conn.commit()
 

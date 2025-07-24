@@ -15,7 +15,7 @@ CREATE TABLE Users (
 
 Create Table Accounts (
 	account_id SERIAL PRIMARY KEY,
-	user_id INT references Users(user_id),
+	user_id INT references Users(user_id) ON DELETE SET NULL,
 	balance DECIMAL(10, 2),
 	date_created DATE DEFAULT CURRENT_DATE,
 	interest DEC(2,2) DEFAULT 0.04,
