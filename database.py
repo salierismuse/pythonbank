@@ -2,6 +2,7 @@ import psycopg2
 import datetime
 import bcrypt 
 from multiprocessing import Pool
+from concurrent.futures import ThreadPoolExecutor
 
 conn = psycopg2.connect("dbname=testing user=postgres password=amadeus")
 cur = conn.cursor()
@@ -232,6 +233,49 @@ def process_all_pending(pool_size=None):
     succeeded = sum(1 for r in results if r)
     failed    = len(results) - succeeded
     return f"Processed {succeeded}/{len(results)} transactions." + (f" ({failed} failed)" if failed else "")
+
+#applying interest to single account
+def apply_interest(account_data):
+    #each thread has its own db
+    acc_id, balance, interest_rate = account_data
+    thread_conn, thread_cur = _get_db()
+
+    try:
+        monthly_interest = float(balance) * (float(interest_rate) / 12)     #monthy interest calc
+        new_balance = float(balance) + monthly_interest
+
+        thread_cur.execute(
+            "UPDATE Accounts SET balance = %s WHERE account_id = %s",       #updating account balance 
+            (new_balance, acc_id)
+        )
+        thread_cur.execute(
+            "INSERT INTO Transactions (from_account_id, to_account_id, amount, date_sent) VALUES (%s, %s, %s, %s)",      #updating account transaction
+            (acc_id, acc_id, monthly_interest, datetime.datetime.now())
+        )
+        thread_conn.commit()
+        return True
+    
+    except Exception as e:
+        thread_conn.rollback()
+        print(f"Interest calculation failed for account {acc_id}: {e}")
+        return False
+    
+    finally:
+        thread_cur.close()
+        thread_conn.close()
+
+#for monthly interest of all saving accounts
+def calc_all_interest():
+    cur.execute("SELECT account_id, balance, interest FROM Accounts WHERE role='Savings'")
+    saving_accounts = cur.fetchall()
+    
+    if not saving_accounts:
+        return "No saving accounts found",[]
+    
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        executor.map(apply_interest, saving_accounts)
+
+    return f"Interest applied to {len(saving_accounts)} accounts.", []
 
 
 def get_all_users_and_accounts():
