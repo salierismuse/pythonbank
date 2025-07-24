@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, session, redirect 
+from flask import Flask, request, render_template, session, redirect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from datetime import timedelta
@@ -58,7 +58,9 @@ def home():
            session["saving_bal"] = saving_bal[0]
            session["user_role"] = user_role
 
-           if user_role == "Empl":
+           if user_role == "Admin":
+               return redirect("admin_home")
+           elif user_role == "Empl":
                 return redirect("/employee_home")
            elif user_role == "User": 
                 return redirect("/user_bank")
@@ -143,15 +145,21 @@ def create_account():
         return render_template("create_account.html")
     else:
         return render_template("create_account.html")
+
+
+
 @app.route("/employee_home", methods=["GET", "POST"])
 @required_login
-@required_role('Empl')
+@required_role('Empl', 'Admin')
 def employee_home():
     user_id = session.get("user_id")
     if not user_id:
         return redirect("/")
     user_role = database.get_role(user_id)
     if user_role != "Empl":
+        session.clear()
+        return redirect("/")
+    users = database.get_all_users_and_accounts() 
         return render_template("home.html", error="Access denied.")
     users = database.get_all_users_and_accounts()
     if request.method == "POST":
@@ -177,6 +185,22 @@ def process_pending():
     from database import process_all_pending
     result = process_all_pending()
     return result
+
+@app.route("/admin_home", methods=["GET", "POST"])
+@required_login
+@required_role('Admin')
+def admin_home():
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect("/")
+    user_role = database.get_role(user_id)
+    if user_role != "Admin":
+        session.clear()
+        return redirect("/")
+    users = database.get_all_users_and_accounts()
+    employees = database.get_all_employees()
+    return render_template("admin_home.html", users=users, employees=employees)
+
 
 
 if __name__ == "__main__":
