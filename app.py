@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, session, redirect
+from flask import Flask, request, render_template, session, redirect, flash
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from datetime import timedelta
@@ -213,7 +213,18 @@ def admin_home():
             return render_template("admin_home.html", users = users, employees = employees)
     return render_template("admin_home.html", users=users, employees=employees)
 
-
-
+@app.route("/calculate_interest",methods=["POST","GET"])
+@required_login
+@required_role('Admin', 'Empl')
+def calculate_interest():
+    msg, updated_accounts = database.calc_all_interest()
+    flash(msg)
+    # Redirect to the correct dashboard based on role
+    user_role = session.get("user_role")
+    if user_role == "Admin":
+        return redirect("/admin_home")
+    else:
+        return redirect("/employee_home")
+    
 if __name__ == "__main__":
     app.run(debug=True)
