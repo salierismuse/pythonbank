@@ -120,6 +120,16 @@ def create_account():
     else:
         return render_template("create_account.html")
 
+@app.route("/employee_home")
+def employee_home():
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect("/")
+    user_role = database.get_role(user_id)
+    if user_role != "Empl":
+        return render_template("home.html", error="Access denied.")
+    users = database.get_all_users_and_accounts() 
+    return render_template("employee_home.html", users=users)
 
 @app.before_request
 def make_session_permanent():
