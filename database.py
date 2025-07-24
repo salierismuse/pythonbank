@@ -5,6 +5,7 @@ from multiprocessing import Pool
 
 conn = psycopg2.connect("dbname=testing user=postgres password=amadeus")
 cur = conn.cursor()
+DB_CONN_STR = "dbname=testing user=postgres password=amadeus"
 
 #get pw
 def get_password(user_id):
@@ -166,28 +167,72 @@ def test_cases():
     print(val)
 
 #This is to help with Parallization 
+def _get_db():
+    """Helper to open a fresh connection & cursor."""
+    conn = psycopg2.connect(DB_CONN_STR)
+    cur  = conn.cursor()
+    return conn, cur
+
 def process_transaction(pending_txn):
-    account_id1, account_id2, amount, date_sent, txn_id = pending_txn
-    # Try to perform withdrawal/deposit
-    if withdrawal(account_id1, amount) and deposit(account_id2, amount):
+    """
+    Worker function: each process opens its own DB connection.
+    pending_txn = (from_acct, to_acct, amount, date_sent, txn_id)
+    """
+    acct1, acct2, amount, date_sent, txn_id = pending_txn
+    conn, cur = _get_db()
+    try:
+        # withdraw
+        cur.execute(
+            "UPDATE Accounts SET balance = balance - %s WHERE account_id = %s",
+            (amount, acct1)
+        )
+        # deposit
+        cur.execute(
+            "UPDATE Accounts SET balance = balance + %s WHERE account_id = %s",
+            (amount, acct2)
+        )
+        # record transaction
         cur.execute(
             "INSERT INTO Transactions (from_account_id, to_account_id, amount, date_sent) VALUES (%s, %s, %s, %s)",
-            (account_id1, account_id2, amount, date_sent)
+            (acct1, acct2, amount, date_sent)
         )
-        cur.execute("DELETE FROM PendingTransactions WHERE id = %s", (txn_id,))
+        # delete pending
+        cur.execute(
+            "DELETE FROM PendingTransactions WHERE id = %s",
+            (txn_id,)
+        )
         conn.commit()
         return True
-    return False
+    except Exception as e:
+        conn.rollback()
+        print(f"[worker] failed txn {txn_id}: {e}")
+        return False
+    finally:
+        cur.close()
+        conn.close()
 
-def process_all_pending():
+
+def process_all_pending(pool_size=None):
+    """
+    Fetch all pending transactions, then map them across a pool.
+    """
+    conn, cur = _get_db()
     cur.execute("SELECT from_account_id, to_account_id, amount, date_sent, id FROM PendingTransactions")
-    pending_txns = cur.fetchall()
-    if not pending_txns:
-        return "No pending transactions to process."
-    with Pool() as pool:
-        results = [pool.apply_async(process_transaction, (txn,)) for txn in pending_txns]
-        [r.get() for r in results]  # Wait for all to finish
-    return f"Processed {len(pending_txns)} transactions."
+    pending = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    if not pending:
+        return "✔ No pending transactions."
+
+    # spawn a pool (defaults to os.cpu_count())
+    with Pool(processes=pool_size) as pool:
+        results = pool.map(process_transaction, pending)
+
+    succeeded = sum(1 for r in results if r)
+    failed    = len(results) - succeeded
+    return f"Processed {succeeded}/{len(results)} transactions." + (f" ({failed} failed)" if failed else "")
+
 
 def get_all_users_and_accounts():
     cur.execute("""
