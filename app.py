@@ -47,9 +47,7 @@ def home():
             return render_template("home.html", error="Invalid username or password")
         user_id = user_id_check[0]
         hashed_pw = database.get_password(user_id)
-        print(hashed_pw)
-        if bcrypt.checkpw(pw.encode("utf-8"), hashed_pw.encode("utf-8")):              #check if password matches
-           print("h")
+        if bcrypt.checkpw(pw.encode("utf-8"), hashed_pw):              #check if password matches
            user_role = database.get_role(user_id)
            first_name = database.get_users_name(user_id) 
            checking_bal = database.get_bal(database.get_checking(user_id))
@@ -135,9 +133,10 @@ def create_account():
         zip = request.form["zip"]
         username = request.form["username"]
         password = request.form["password"]
+        hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
         checkings = request.form["checking"]
         saving = request.form["saving"]
-        account_info = (first, last, street, city, state, zip, "User", username, password)
+        account_info = (first, last, street, city, state, zip, "User", username, hashed_password)
         if database.make_user(account_info, checkings, saving):
             return redirect("/")
     if database.get_role(user_id) == "Empl":
