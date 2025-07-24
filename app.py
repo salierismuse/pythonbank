@@ -145,6 +145,8 @@ def create_account():
     else:
         return render_template("create_account.html")
 @app.route("/employee_home")
+@required_login
+@required_role('Empl')
 def employee_home():
     user_id = session.get("user_id")
     if not user_id:
