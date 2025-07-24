@@ -160,8 +160,6 @@ def employee_home():
         session.clear()
         return redirect("/")
     users = database.get_all_users_and_accounts() 
-        return render_template("home.html", error="Access denied.")
-    users = database.get_all_users_and_accounts()
     if request.method == "POST":
         button = request.form["1"]
         if button != None:
