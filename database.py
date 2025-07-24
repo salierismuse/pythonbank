@@ -73,18 +73,23 @@ def confirm_balance(account_id, amount):
 
 # create user!
 def make_user(user_data, checking_data, saving_data):
-    hashed_pw = bcrypt.hashpw(user_data[8].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-    cur.execute(
-        "INSERT INTO Users (first_name, last_name, street, city, st, zip_code, role, username, pw) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-        (user_data[0], user_data[1], user_data[2], user_data[3], user_data[4], user_data[5], user_data[6], user_data[7], hashed_pw)
-    )
-    cur.execute("SELECT user_id FROM Users WHERE username = %s", (user_data[7],))
-    id = cur.fetchone()[0]
-    Checkings = (id, checking_data, "Checkings")
-    Savings = (id, saving_data, "Savings")
-    make_account(Checkings)
-    make_account(Savings)
-    conn.commit()
+    try:
+        cur.execute(
+            "INSERT INTO Users (first_name, last_name, street, city, st, zip_code, role, username, pw) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            (user_data[0], user_data[1], user_data[2], user_data[3], user_data[4], user_data[5], user_data[6], user_data[7], user_data[8])
+        )
+        cur.execute("SELECT user_id FROM Users WHERE username = %s", (user_data[7],))
+        id = cur.fetchone()[0]
+        Checkings = (id, checking_data, "Checkings")
+        Savings = (id, saving_data, "Savings")
+        make_account(Checkings)
+        make_account(Savings)
+        conn.commit()
+        return True
+    except Exception as e:
+        conn.rollback()
+        return False
+
 
 def make_account(account_data):
     cur.execute("INSERT INTO Accounts (user_id, balance, role) VALUES (%s, %s, %s)", (account_data))
@@ -110,9 +115,8 @@ def get_users_name(user_id):
 
 #deleting user based on id
 def delete_user(user_id):
-    if (find_user(get_users_name(user_id))):
-        cur.execute("DELETE FROM Users WHERE user_id = %s", (user_id))
-        conn.commit()
+    cur.execute("DELETE FROM Users WHERE user_id = %s", (user_id,))
+    conn.commit()
 
 #user1 is who the money is transferring from
 #user2 is who the money goes to
@@ -187,7 +191,7 @@ def process_all_pending():
 
 def get_all_users_and_accounts():
     cur.execute("""
-        SELECT DISTINCT u.user_id, u.first_name, u.last_name, u.username, u.role,
+        SELECT u.user_id, u.first_name, u.last_name, u.username, u.role,
                a.account_id, a.balance, a.role as account_type, a.interest
         FROM Users u
         JOIN Accounts a ON u.user_id = a.user_id
