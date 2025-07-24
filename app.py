@@ -210,7 +210,7 @@ def admin_home():
             database.delete_user(int(user_id_to_delete))
             users = database.get_all_users_and_accounts()
             employees = database.get_all_employees()
-            return render_template("employee_home.html", users = users, employee = employees)
+            return render_template("admin_home.html", users = users, employees = employees)
     return render_template("admin_home.html", users=users, employees=employees)
 
 
