@@ -87,7 +87,7 @@ def make_user(user_data, checking_data, saving_data):
     conn.commit()
 
 def make_account(account_data):
-    cur.execute("INSERT INTO Accounts (user_id, balance, role) VALUES (%s, %s, %s)", (account_data),)
+    cur.execute("INSERT INTO Accounts (user_id, balance, role) VALUES (%s, %s, %s)", (account_data))
 
 #user look-up based on id
 def find_user(user_name):
@@ -184,4 +184,14 @@ def process_all_pending():
         results = [pool.apply_async(process_transaction, (txn,)) for txn in pending_txns]
         [r.get() for r in results]  # Wait for all to finish
     return f"Processed {len(pending_txns)} transactions."
+
+def get_all_users_and_accounts():
+    cur.execute("""
+        SELECT u.user_id, u.first_name, u.last_name, u.username, u.role,
+               a.account_id, a.balance, a.role as account_type, a.interest
+        FROM Users u
+        JOIN Accounts a ON u.user_id = a.user_id
+        ORDER BY u.user_id, a.account_id
+    """)
+    return cur.fetchall()
 
