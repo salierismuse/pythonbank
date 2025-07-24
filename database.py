@@ -65,7 +65,7 @@ def confirm_balance(account_id, amount):
         return False
     cur.execute("SELECT Balance FROM Accounts WHERE account_id = %s;", (account_id,))
     val = cur.fetchone()
-    if (val[0] - amount) >= 0:
+    if (float(val[0]) - float(amount)) >= 0:
         return True
     return False
 
@@ -119,7 +119,7 @@ def delete_user(user_id):
 # needs to be rewritten to deal with accounts now.
 def balance_transfer(account_id1, account_id2, amount):
     if withdrawal(account_id1, amount) and deposit(account_id2, amount):
-        cur.execute("INSERT INTO Transactions (from_account_id, to_account_id, amount, date_sent) VALUES (%s, %s, %s, %s)", (account_id1, account_id2, amount, datetime.datetime.now()))
+        cur.execute("INSERT INTO Transactions (from_account_id, to_account_id, amount, date_sent) VALUES (%s, %s, %s, %s)", (account_id1, account_id2, float(amount), datetime.datetime.now()))
         conn.commit()
         return True
     return False
@@ -128,7 +128,7 @@ def balance_transfer(account_id1, account_id2, amount):
 #note, no commit
 def withdrawal(account_id, amount):
     if confirm_account(account_id) and confirm_balance(account_id, amount):
-        cur.execute("UPDATE Accounts SET balance = balance - %s WHERE account_id = %s", (amount, account_id))
+        cur.execute("UPDATE Accounts SET balance = balance - %s WHERE account_id = %s", (float(amount), account_id))
         return True
     return False
 
@@ -143,7 +143,7 @@ def withdrawal_single(account_id, amount):
 #note, no commit
 def deposit(account_id, amount):
     if confirm_account(account_id):
-        cur.execute("UPDATE Accounts SET balance = balance + %s WHERE account_id = %s", (amount, account_id))
+        cur.execute("UPDATE Accounts SET balance = balance + %s WHERE account_id = %s", (float(amount), account_id))
         return True
     return False
 
