@@ -98,7 +98,7 @@ def find_user(user_name):
 #note, make usernames unique
 def get_user_id(user_name):
     cur.execute("SELECT user_id FROM Users WHERE username = %s;", (user_name,))
-    return cur.fetchone()
+    return (cur.fetchone())
 
 def get_bal(account_id):
     cur.execute("SELECT balance FROM Accounts WHERE account_id = %s", (account_id,))

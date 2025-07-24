@@ -24,12 +24,15 @@ def home():
         un = request.form["un"]
         pw = request.form["pw"]
         user_id = database.get_user_id(un)
-        user_id = user_id
+        print(user_id)
         if not user_id:
             return render_template("home.html", error="Invalid username or password")
+        user_id = user_id[0]
+        print(pw.encode("utf-8"))
         hashed_pw = database.get_password(user_id)
-
+        print(hashed_pw)
         if bcrypt.checkpw(pw.encode("utf-8"), hashed_pw.encode("utf-8")):              #check if password matches
+           print("h")
            user_role = database.get_role(user_id)
            first_name = database.get_users_name(user_id) 
            checking_bal = database.get_bal(database.get_checking(user_id))
@@ -38,6 +41,7 @@ def home():
            session["name"] = first_name
            session["check_bal"] = checking_bal[0]
            session["saving_bal"] = saving_bal[0]
+           session["user_role"] = user_role[0]
 
 
            return redirect("/user_bank")
