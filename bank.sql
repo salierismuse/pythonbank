@@ -8,17 +8,17 @@ CREATE TABLE Users (
 	zip_code TEXT,
 	date_created DATE DEFAULT CURRENT_DATE,
 	role VARCHAR(10) CHECK(role IN('Empl', 'User', 'Admin')),
-	username VARCHAR(30),
-	pw VARCHAR(72)
+	username VARCHAR(30) UNIQUE NOT NULL,
+	pw VARCHAR(72) NOT NULL
+
 );
 
 
 Create Table Accounts (
 	account_id SERIAL PRIMARY KEY,
-	user_id INT references Users(user_id),
-	balance DECIMAL(10, 2),
-	date_created DATE DEFAULT CURRENT_DATE,
-	interest DEC(2,2) DEFAULT 0.04,
+	user_id INT REFERENCES Users(user_id) ON DELETE CASCADE,
+	balance DECIMAL(10, 2) DEFAULT 0.00,
+	interest DECIMAL(4, 2) DEFAULT 0.04,
 	role VARCHAR(10) CHECK(role IN ('Checkings', 'Savings'))
 );
 
@@ -26,17 +26,19 @@ CREATE TABLE Transactions (
 	transaction_id SERIAL PRIMARY KEY,
 	from_account_id int REFERENCES Accounts(account_id),
 	to_account_id INT REFERENCES Accounts(account_id),
-	amount DECIMAL(10, 2),
-	date_sent TIMESTAMP 
+	amount DECIMAL(10, 2) NOT NULL CHECK (amount > 0),
+	date_sent TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
 );
 
 CREATE TABLE PendingTransactions (
     id SERIAL PRIMARY KEY,
     from_account_id INT,
     to_account_id INT,
-    amount NUMERIC,
-    date_sent TIMESTAMP,
-    -- Add any extra columns as needed
+    amount DECIMAL(10, 2) NOT NULL CHECK (amount > 0),
+	date_sent TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+	-- Add any extra columns as needed
     status TEXT DEFAULT 'pending'
 );
 
