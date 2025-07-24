@@ -39,8 +39,12 @@ def home():
            session["check_bal"] = checking_bal[0]
            session["saving_bal"] = saving_bal[0]
 
-
-           return redirect("/user_bank")
+           if user_role == "Empl":
+                return redirect("/employee_home")
+           elif user_role == "User": 
+                return redirect("/user_bank")
+           else:
+                return render_template("home.html", error="Invalid username or password")
         else:
             return render_template("home.html", error="Invalid username or password")
 
@@ -115,9 +119,7 @@ def create_account():
         return render_template("create_account.html")
     else:
         return render_template("create_account.html")
-    
-    if __name__ == "__main__":
-        app.run(debug=True)
+
 
 @app.before_request
 def make_session_permanent():

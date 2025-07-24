@@ -87,7 +87,8 @@ def make_user(user_data, checking_data, saving_data):
     conn.commit()
 
 def make_account(account_data):
-    cur.execute("INSERT INTO Accounts (user_id, balance, role) VALUES (%s, %s, %s)", (account_data),)
+    cur.execute("INSERT INTO Accounts (user_id, balance, role) VALUES (%s, %s, %s)", (account_data))
+    conn.commit()
 
 #user look-up based on id
 def find_user(user_name):
