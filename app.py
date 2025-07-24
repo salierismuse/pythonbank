@@ -126,25 +126,32 @@ def user_account():
 @required_role('Empl', 'Admin')
 def create_account():
     user_id = session.get("user_id")
+    user_role = session.get("user_role")
     if request.method == "POST":
+        username = request.form["username"]
+        if database.get_user_id(username):
+            return render_template("create_account.html", error="Username already exists. Please choose another.")
         first = request.form["first name"]
         last = request.form["last name"]
         street = request.form["street"]
         city = request.form["city"]
         state = request.form["state"]
-        zip = request.form["zip"]
-        username = request.form["username"]
+        zip_code = request.form["zip"]
         password = request.form["password"]
-        hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
         checkings = request.form["checking"]
         saving = request.form["saving"]
-        account_info = (first, last, street, city, state, zip, "User", username, hashed_password)
+        hashed_pw = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        account_info = (first, last, street, city, state, zip_code, "User", username, hashed_pw)
         if database.make_user(account_info, checkings, saving):
-            return redirect("/")
-    if database.get_role(user_id) == "Empl":
-        return render_template("create_account.html")
-    else:
-        return render_template("create_account.html")
+            if user_role == "Admin":
+                return redirect("/admin_home")
+            elif user_role == "Empl":
+                return redirect("/employee_home")
+            else:
+                return redirect("/")
+        else:
+            return render_template("create_account.html", error="Account creation failed.")
+    return render_template("create_account.html")
 
 
 
@@ -161,9 +168,9 @@ def employee_home():
         return redirect("/")
     users = database.get_all_users_and_accounts() 
     if request.method == "POST":
-        button = request.form["1"]
-        if button != None:
-            database.delete_user(database.get_user_id(button))
+        user_id_to_delete = request.form.get("user_id_to_delete")
+        if user_id_to_delete != None:
+            database.delete_user(int(user_id_to_delete))
             users = database.get_all_users_and_accounts()
             return render_template("employee_home.html", users=users)
     return render_template("employee_home.html", users=users)
@@ -197,6 +204,13 @@ def admin_home():
         return redirect("/")
     users = database.get_all_users_and_accounts()
     employees = database.get_all_employees()
+    if request.method == "POST":
+        user_id_to_delete = request.form.get("user_id_to_delete")
+        if user_id_to_delete != None:
+            database.delete_user(int(user_id_to_delete))
+            users = database.get_all_users_and_accounts()
+            employees = database.get_all_employees()
+            return render_template("employee_home.html", users = users, employee = employees)
     return render_template("admin_home.html", users=users, employees=employees)
 
 

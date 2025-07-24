@@ -36,7 +36,7 @@
                         <td>{{ u[8] }}</td>
                         <td>
                             <form method="post">
-                            <button type="submit" class="btn btn-danger" name="1" value={{u[3]}}>delete</button>
+                            <button type="submit" class="btn btn-danger" name="user_id_to_delete" value={{u[0]}}>delete</button>
                             </form>
                         </td>
                     </tr>
@@ -48,7 +48,7 @@
         </div>
     </div>
     <a href="/create_account" class="btn btn-primary">Create New User Account</a>
-    <button type="button" class="btn btn-secondary ms-2" onclick="window.history.back();">Back</button>
+    <a href="/" class="btn btn-secondary ms-2">Back</a>
 </body>
 </html>
 

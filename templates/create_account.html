@@ -5,6 +5,7 @@
     <title>Create New Account</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body class="bg-light d-flex justify-content-center align-items-center vh-100">
     <div class="container">
         <div class="row justify-content-center">
@@ -13,15 +14,20 @@
                     <div class="card-header bg-primary text-white text-center">
                         <h4>Create New User Account</h4>
                     </div>
+                    {% if error %}
+                    <div class="alert alert-danger text-center" role="alert">
+                        {{ error }}
+                    </div>
+                    {% endif %}
                     <div class="card-body">
                         <form method="post">
                             <!-- Personal Info -->
                             <div class="mb-3">
-                                <label for="first-name" class="form-label">First Name</label>
+                                <label for="first_name" class="form-label">First Name</label>
                                 <input type="text" name="first name" id="first-name" class="form-control" required>
                             </div>
                             <div class="mb-3">
-                                <label for="last-name" class="form-label">Last Name</label>
+                                <label for="last_name" class="form-label">Last Name</label>
                                 <input type="text" name="last name" id="last-name" class="form-control" required>
                             </div>
 
@@ -73,7 +79,7 @@
                         </form>
                     </div>
                     <div class="card-footer text-center">
-                        <button type="button" class ="btn btn-secondary" onclick="window.history.back();">Back</button>
+                        <a href="{{ session['back_url'] }}" class="btn btn-secondary">Back</a>
                     </div>
                 </div>
             </div>
