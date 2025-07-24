@@ -47,7 +47,7 @@ def home():
             return render_template("home.html", error="Invalid username or password")
         user_id = user_id_check[0]
         hashed_pw = database.get_password(user_id)
-        if bcrypt.checkpw(pw.encode("utf-8"), hashed_pw):              #check if password matches
+        if bcrypt.checkpw(pw.encode("utf-8"), hashed_pw.encode("utf-8")):              #check if password matches
            user_role = database.get_role(user_id)
            first_name = database.get_users_name(user_id) 
            checking_bal = database.get_bal(database.get_checking(user_id))
