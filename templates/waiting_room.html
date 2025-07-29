@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<div>
+    <head>
+        <title>Waiting Room</title>
+    </head>
+    <body>
+        <header>
+            <h1>Currently, our representatives are all busy, try again later</h1>
+        </header>
+        <button id="leave-btn">LEAVE</button>
+
+        <script>
+            const leaveButton = document.getElementById('leave-btn')
+            leaveButton.addEventListener('click', () => {
+                     const role = "{{ role }}";
+            if (role === "employee") {
+                window.location.href = "/employee_bank";
+            } else {
+                window.location.href = "/user_bank";
+            }
+        });
+        </script>
+    </body>
+</div>

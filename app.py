@@ -245,7 +245,7 @@ def calculate_interest():
 @socketio.on('disconnect')
 def handle_disconnect():
     disconnected_user = None
-    for username, sid in list(users.items())
+    for username, sid in list(users.items()):
         if sid == request.sid:
             disconnected_user = username
             del users[username]
