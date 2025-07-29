@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, session, redirect, flash
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_socketio import SocketIO, emit
 from datetime import timedelta
 from functools import wraps
 import database
@@ -10,7 +11,9 @@ import build_db
 
 
 app = Flask(__name__)
-
+MAX_USERS = 2
+socketio = SocketIO(app)
+users = {}
 app.secret_key = "TESTING"
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=15)
 
@@ -73,6 +76,16 @@ def home():
             return render_template("home.html", error="Invalid username or password")
 
     return render_template("home.html")
+
+@app.route('/chat_room')
+def chat_room():
+    username = request.args.get('username') or session.get('username','Guest')
+    return render_template('/chat_room.html', username = username)
+
+@app.route('/waiting_room')
+def waiting_room():
+    role = session.get("user_role")
+    return render_template("waiting_room.html", role=role)
 
 @app.route("/user_bank", methods=["GET", "POST"])
 @required_login
@@ -229,5 +242,37 @@ def calculate_interest():
     else:
         return redirect("/employee_home")
     
+@socketio.on('disconnect')
+def handle_disconnect():
+    disconnected_user = None
+    for username, sid in list(users.items())
+        if sid == request.sid:
+            disconnected_user = username
+            del users[username]
+            break
+    if disconnected_user:
+        emit('chat', {
+            "username": disconnected_user,
+            "message": f"{disconnected_user} has left the chat."
+        }, broadcast=True)
+
+@socketio.on('user_join')
+def handle_user_join(data):
+    if len(users) >= MAX_USERS:
+        emit('redirect', {'url': '/waiting_room'}, to=request.sid)
+        return
+    username = data['username']
+    users[username] = request.sid
+    emit('chat', {
+        "username": username,
+        "message" : f"{username} has joined the chat.",
+    }, broadcast=True)
+
+@socketio.on('new_message')
+def handle_new_message(data):
+    message = data.get("message")
+    username = data.get(username)
+    emit('chat', {"message": message, "username": username}, broadcast=True)
+    
 if __name__ == "__main__":
-    app.run(debug=True)
+    socketio.run(app, debug=True)
