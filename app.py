@@ -6,12 +6,15 @@ from functools import wraps
 import database
 import decimal
 import bcrypt
+import build_db
 
 
 app = Flask(__name__)
 
 app.secret_key = "TESTING"
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=15)
+
+build_db
 
 limiter = Limiter(
     get_remote_address,
