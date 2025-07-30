@@ -1,7 +1,9 @@
-**Python Bank**
-Python Bank is an application that seeks to simulate a small bank that accepts transactions between it's own users. User's can transfer money from one account to another, and only beginning from their own accounts and assuming they have the proper funds. Employees have their own custom dashboard, that allows them to create users, as well as deleting them. This is also where interest is applied, an employee is able to apply the interest to all user's savings accounts. Admins also have their own hub, allowing them all the perks of employees, but also being able to see all employees. There is also a basic integration of a chatroom.
+****Python Bank****
 
-**Libraries Required**
+Python Bank is an application that seeks to simulate a small bank that accepts transactions between it's own users. User's can transfer money from one account to another, and only beginning from their own accounts and assuming they have the proper funds. Employees have their own custom dashboard, that allows them to create users, as well as deleting them. This is also where interest is applied, an employee is able to apply the interest to all user's savings accounts. Admins also have their own hub, allowing them all the perks of employees, but also being able to see all employees. There is also a basic integration of a chatroom.
+**
+**Libraries Required****
+
 Flask
 Flask_Limiter
 Flask_Limiter.Util
@@ -14,7 +16,12 @@ psycopg2
 multiprocessing
 concurrent.futures
 
+****Beyond Scope****
+
 A basic chatroom was created which was beyond the original scope. The intention was to allow a secure connection between a user and an employee. This feature was not fully completed by the end, but the scaffold is there and messages are able to be sent. Scaffold of code set up for parallelizing processing pending transactions was also created, though this was never finalized. 
+
+****Role Distribution****
+
 
 Everybody did well assisting everywhere, however areas of focus were: 
 Isaac: Majority of database functions. Created scaffold and beginning of flask frontend/backend implementation. Created ability to send transactions to other users. 
