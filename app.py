@@ -271,7 +271,7 @@ def handle_user_join(data):
 @socketio.on('new_message')
 def handle_new_message(data):
     message = data.get("message")
-    username = data.get(username)
+    username = data.get("username")
     emit('chat', {"message": message, "username": username}, broadcast=True)
     
 if __name__ == "__main__":
