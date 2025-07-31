@@ -28,7 +28,9 @@ multiprocessing
 concurrent.futures
 
 ****FURTHER REQUIREMENTS TO RUN****
-This program requires postgres. You do not need to do anything on your end aside from have a valid postgres install, for the purpose of this project it simply places the tables in the main postgres table, so it should always work. If you want it in a specific database, you may edit the code in database.py so that ("dbname=*yourdbhere* user=postgres password=x"), as long as said database exists in your local postgres. For simplicity and easy of this project, we chose to just place it directly into postgres db. 
+This program requires postgres. You do not need to do anything on your end aside from have a valid postgres install, for the purpose of this project it simply places the tables in the main postgres database, so it should always work. If you want it in a specific database, you may edit the code in database.py so that ("dbname=*yourdbhere* user=postgres password=x"), as long as said database exists in your local postgres. For simplicity and easy of this project, we chose to just place it directly into postgres db. 
+
+Then simply "Flask Run" and open the page.
 
 ****Beyond Scope****
 
